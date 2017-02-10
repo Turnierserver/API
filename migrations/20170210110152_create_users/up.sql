@@ -1,0 +1,10 @@
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY NOT NULL,
+  username VARCHAR NOT NULL UNIQUE,
+  email VARCHAR NOT NULL,
+  firstname VARCHAR,
+  lastname VARCHAR,
+  pwhash TEXT NOT NULL,
+  admin BOOLEAN NOT NULL DEFAULT 'f',
+  name_public BOOLEAN NOT NULL DEFAULT 't'
+)

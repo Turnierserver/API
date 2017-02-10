@@ -1,0 +1,29 @@
+[package]
+authors = ["Mrmaxmeier <Mrmaxmeier@gmail.com>"]
+name = "turnierserver"
+version = "0.1.0"
+
+[dependencies]
+dotenv = "0.8.0"
+rocket = "0.2.0"
+rocket_codegen = "0.2.0"
+rustyline = "1.0.0"
+serde = "0.9.7"
+serde_derive = "0.9.7"
+serde_json = "0.9.5"
+
+[dependencies.diesel]
+features = ["postgres"]
+version = "0.10.1"
+
+[dependencies.diesel_codegen]
+features = ["postgres"]
+version = "0.10.1"
+
+[dependencies.juniper]
+features = ["serde", "expose-test-schema"]
+version = "0.6.2"
+
+[dependencies.rocket_contrib]
+features = ["templates", "json", "serde", "handlebars_templates"]
+version = "0.2.0"
