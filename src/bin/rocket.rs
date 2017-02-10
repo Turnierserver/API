@@ -7,12 +7,7 @@ extern crate juniper;
 extern crate turnierserver;
 
 use rocket_contrib::{JSON, Template};
-use turnierserver::graphql::{GraphqlQuery, GraphqlResult};
-
-#[get("/hello/<name>/<age>")]
-fn hello(name: &str, age: u8) -> String {
-    format!("Hello, {} year old named {}!", age, name)
-}
+use turnierserver::{GraphqlQuery, GraphqlResult};
 
 #[get("/")]
 fn graphiql() -> Template {
@@ -41,7 +36,6 @@ fn status() -> String {
 
 fn main() {
     rocket::ignite().mount("/", routes![
-        hello,
         get_graphql,
         post_graphql,
         graphiql,

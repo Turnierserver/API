@@ -21,7 +21,7 @@ features = ["postgres"]
 version = "0.10.1"
 
 [dependencies.juniper]
-features = ["serde", "expose-test-schema"]
+features = ["serde"]
 version = "0.6.2"
 
 [dependencies.rocket_contrib]

@@ -1,7 +1,7 @@
 #[macro_use] extern crate diesel_codegen;
 #[macro_use] extern crate diesel;
+#[macro_use] extern crate juniper;
 extern crate dotenv;
-extern crate juniper;
 extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
@@ -9,6 +9,7 @@ extern crate rocket;
 pub mod schema;
 pub mod models;
 pub mod graphql;
+pub use graphql::rocket_glue::{GraphqlQuery, GraphqlResult};
 
 use diesel::prelude::*;
 use diesel::pg::PgConnection;

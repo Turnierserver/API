@@ -3,9 +3,9 @@ use rocket_contrib::{JSON, Value};
 use rocket::response::status;
 use rocket::http::Status;
 use juniper::{RootNode, Variables, execute};
-use juniper::tests::model::Database;
 use juniper::EmptyMutation;
 
+use super::schema::Database;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GraphqlQuery {
