@@ -13,7 +13,7 @@ RUN apt-get install -y libpq-dev
 RUN apt-get remove -y wget
 
 RUN cargo install diesel_cli --no-default-features --features postgres
-RUN echo DATABASE_URL=postgres://turnierserver:turnierserver@localhost/turnierserver > /srv/api/.env
+RUN echo DATABASE_URL=postgres://turnierserver:turnierserver@db/turnierserver > /srv/api/.env
 
 CMD (/root/.cargo/bin/diesel setup || true; /root/.cargo/bin/diesel migrations run) && cargo run --release --bin rocket
 
