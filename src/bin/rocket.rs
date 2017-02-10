@@ -6,27 +6,34 @@ extern crate rocket_contrib;
 extern crate juniper;
 extern crate turnierserver;
 
-use rocket_contrib::{JSON, Template};
+use rocket_contrib::JSON;
+use rocket::response::NamedFile;
 use turnierserver::{GraphqlQuery, GraphqlResult};
+use turnierserver::cors::Cors;
 
 #[get("/")]
-fn graphiql() -> Template {
-    let data: Option<String> = None;
-    Template::render("graphiql", &data)
+fn graphiql() -> NamedFile {
+    NamedFile::open("static/graphiql.html").unwrap()
+}
+
+#[get("/?<query>")]
+fn graphiql_w_query(query: &str) -> NamedFile {
+    let _ = query; // TODO: DRY
+    NamedFile::open("static/graphiql.html").unwrap()
 }
 
 #[get("/graphql?<query>")]
-fn get_graphql(query: &str) -> GraphqlResult {
+fn get_graphql(query: &str) -> Cors<GraphqlResult> {
     let q = GraphqlQuery {
         query: query.into(),
         variables: None
     };
-    q.execute()
+    Cors(q.execute())
 }
 
 #[post("/graphql", data = "<query>")]
-fn post_graphql(query: JSON<GraphqlQuery>) -> GraphqlResult {
-    query.execute()
+fn post_graphql(query: JSON<GraphqlQuery>) -> Cors<GraphqlResult> {
+    Cors(query.execute())
 }
 
 #[get("/status")]
@@ -39,6 +46,7 @@ fn main() {
         get_graphql,
         post_graphql,
         graphiql,
+        graphiql_w_query,
         status
     ]).launch();
 }
