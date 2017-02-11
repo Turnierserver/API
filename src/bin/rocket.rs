@@ -22,6 +22,11 @@ fn graphiql_w_query(query: &str) -> NamedFile {
     NamedFile::open("static/graphiql.html").unwrap()
 }
 
+#[options("/graphql")]
+fn options_graphql<'a>() -> Cors<&'a str> {
+    Cors("")
+}
+
 #[get("/graphql?<query>")]
 fn get_graphql(query: &str) -> Cors<GraphqlResult> {
     let q = GraphqlQuery {
@@ -45,6 +50,7 @@ fn main() {
     rocket::ignite().mount("/", routes![
         get_graphql,
         post_graphql,
+        options_graphql,
         graphiql,
         graphiql_w_query,
         status

@@ -10,6 +10,9 @@ impl<'r, R: Responder<'r>> Responder<'r> for Cors<R> {
         let mut build = Response::build();
         build.merge(self.0.respond()?);
 
-        build.raw_header("Access-Control-Allow-Origin", "*").ok()
+        build
+            .raw_header("Access-Control-Allow-Origin", "*")
+            .raw_header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE")
+            .ok()
     }
 }
