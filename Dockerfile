@@ -1,20 +1,21 @@
-FROM jimmycuadra/rust
+FROM dock0/arch
 
-EXPOSE 80
+EXPOSE 8000
 
 WORKDIR /srv/api
 
-RUN apt-get update
-RUN apt-get install -y wget
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get update
-RUN apt-get install -y libpq-dev
-RUN apt-get remove -y wget
+RUN pacman --noconfirm -Syu \
+ && pacman --noconfirm -S gcc rustup postgresql postgresql-libs \
+ && rustup toolchain install nightly \
+ && rustup default nightly \
+ && cargo install diesel_cli --no-default-features --features postgres \
+ && pacman -Qtdq | xargs -r pacman --noconfirm -Rcns \
+ && pacman --noconfirm -Scc \
+ && rm -rf /var/cache/pacman/pkg/* \
+ && rm -rf /home/aur/.cache/pacaur
 
-RUN cargo install diesel_cli --no-default-features --features postgres
-RUN echo DATABASE_URL=postgres://turnierserver:turnierserver@db/turnierserver > /srv/api/.env
-
-CMD (/root/.cargo/bin/diesel setup || true; /root/.cargo/bin/diesel migrations run) && cargo run --release --bin rocket
+CMD cat /srv/api/.env && (/root/.cargo/bin/diesel setup || /root/.cargo/bin/diesel migration run) && cargo run --release --bin rocket
 
 COPY . /srv/api
+RUN cargo build --release \
+ && echo DATABASE_URL=postgres://turnierserver:turnierserver@db/turnierserver | tee /srv/api/.env
