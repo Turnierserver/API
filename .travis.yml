@@ -7,4 +7,4 @@ install:
     - docker pull dock0/arch
 
 script:
-    - docker build -t turnierserver/API .
+    - docker build -t turnierserver/api .
