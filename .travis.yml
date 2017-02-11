@@ -1,0 +1,10 @@
+sudo: required
+
+services:
+    - docker
+
+install:
+    - docker pull dock0/arch
+
+script:
+    - docker build -t turnierserver/API .
