@@ -38,6 +38,10 @@ graphql_object!(User: Database as "User" |&self| {
         &self.username
     }
 
+    field email() -> &String {
+        &self.email
+    }
+
     field admin() -> bool {
         self.admin
     }
