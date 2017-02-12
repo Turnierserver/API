@@ -18,6 +18,6 @@ table! {
         pwhash -> Nullable<Text>,
         admin -> Bool,
         name_public -> Bool,
-        token -> Nullable<Text>,
+        token -> Nullable<Uuid>,
     }
 }

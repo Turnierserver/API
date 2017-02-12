@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use juniper;
 use rocket::http::Cookies;
+use uuid::Uuid;
 
 use models::*;
 use schema::users;
@@ -29,7 +30,7 @@ impl Context {
                     .first::<User>(&conn)
                     .unwrap();
 
-                if user.token == Some(_token) {
+                if user.token == Uuid::parse_str(&*_token).ok() {
                     Some(user)
                 } else {
                     None

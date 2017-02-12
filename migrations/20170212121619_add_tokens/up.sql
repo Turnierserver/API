@@ -1,1 +1,1 @@
-ALTER TABLE users ADD COLUMN token TEXT;
+ALTER TABLE users ADD COLUMN token UUID;

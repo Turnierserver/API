@@ -1,4 +1,5 @@
 use super::schema::*;
+use uuid::Uuid;
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[has_many(ais)]
@@ -12,7 +13,7 @@ pub struct User {
     pub pwhash: Option<String>,
     pub name_public: bool,
     pub admin: bool,
-    pub token: Option<String>
+    pub token: Option<Uuid>
 }
 
 #[derive(Insertable)]
