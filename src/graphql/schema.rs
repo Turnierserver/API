@@ -16,10 +16,6 @@ impl Database {
             conn: establish_connection()
         }
     }
-
-    pub fn me<'a>(&self) -> Option<&User> {
-        unimplemented!()
-    }
 }
 
 impl Context for Database {}
@@ -67,7 +63,9 @@ graphql_object!(User: Database as "User" |&self| {
 
 
     field ais(&executor) -> Vec<AI> {
-        unimplemented!()//executor.context().conn
+        AI::belonging_to(self)
+            .load(&executor.context().conn)
+            .unwrap() // FIXME
     }
 });
 
@@ -78,7 +76,21 @@ graphql_object!(AI: Database as "AI" |&self| {
         format!("{}", self.id)
     }
 
+    field name() -> &String {
+        &self.name
+    }
+
+    field description() -> Option<&String> {
+        self.description.as_ref()
+    }
+
+    field elo() -> f64 {
+        self.elo
+    }
+
     field user(&executor) -> User {
-        unimplemented!()
+        users.find(self.user_id) // FIXME
+            .first(&executor.context().conn)
+            .unwrap() // FIXME
     }
 });

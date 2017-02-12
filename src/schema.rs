@@ -14,9 +14,9 @@ table! {
 table! {
     ais (id) {
         id -> Int4,
+        user_id -> Int4,
         name -> Varchar,
         description -> Nullable<Varchar>,
         elo -> Float8,
-        user_id -> Int4,
     }
 }

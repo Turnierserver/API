@@ -19,7 +19,7 @@ fn graphiql() -> NamedFile {
 
 #[get("/?<query>")]
 fn graphiql_w_query(query: &str) -> NamedFile {
-    let _ = query; // TODO: DRY
+    let _ = query;
     NamedFile::open("static/graphiql.html").unwrap()
 }
 
@@ -48,18 +48,12 @@ fn post_graphql(cookies: &Cookies, query: JSON<GraphqlQuery>) -> Cors<GraphqlRes
     ))
 }
 
-#[get("/status")]
-fn status() -> String {
-    format!("TODO")
-}
-
 fn main() {
     rocket::ignite().mount("/", routes![
         get_graphql,
         post_graphql,
         options_graphql,
         graphiql,
-        graphiql_w_query,
-        status
+        graphiql_w_query
     ]).launch();
 }
