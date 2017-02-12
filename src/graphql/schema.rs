@@ -5,9 +5,11 @@ use super::Context;
 
 use models::*;
 use schema::users::dsl::*;
+use schema::ais::dsl::ais;
 
 graphql_object!(Context: Context |&self| {
     field user_store() -> UserStore { UserStore {} }
+    field ai_store() -> AIStore { AIStore {} }
 
     field me() -> Option<&User> { self.user.as_ref() }
 });
@@ -50,6 +52,12 @@ graphql_object!(User: Context as "User" |&self| {
 });
 
 
+struct AIStore {}
+graphql_object!(AIStore: Context as "AIStore" |&self| {
+    field ais(&executor) -> Vec<AI> {
+        ais.load::<AI>(&executor.context().conn).unwrap()
+    }
+});
 
 graphql_object!(AI: Context as "AI" |&self| {
     field id() -> ID { ID::from(format!("{}", self.id)) }
