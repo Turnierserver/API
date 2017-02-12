@@ -8,7 +8,8 @@ extern crate turnierserver;
 
 use rocket_contrib::JSON;
 use rocket::response::NamedFile;
-use turnierserver::{GraphqlQuery, GraphqlResult};
+use rocket::http::Cookies;
+use turnierserver::rocket_glue::*;
 use turnierserver::cors::Cors;
 
 #[get("/")]
@@ -28,17 +29,23 @@ fn options_graphql<'a>() -> Cors<&'a str> {
 }
 
 #[get("/graphql?<query>")]
-fn get_graphql(query: &str) -> Cors<GraphqlResult> {
+fn get_graphql(cookies: &Cookies, query: &str) -> Cors<GraphqlResult> {
     let q = GraphqlQuery {
         query: query.into(),
         variables: None
     };
-    Cors(q.execute())
+    Cors(q.execute(
+        Database::new(),
+        Database::new(), //cookies.find("token").map(|token| ())
+    ))
 }
 
 #[post("/graphql", data = "<query>")]
-fn post_graphql(query: JSON<GraphqlQuery>) -> Cors<GraphqlResult> {
-    Cors(query.execute())
+fn post_graphql(cookies: &Cookies, query: JSON<GraphqlQuery>) -> Cors<GraphqlResult> {
+    Cors(query.execute(
+        Database::new(),
+        Database::new(), //cookies.find("token").map(|token| ())
+    ))
 }
 
 #[get("/status")]

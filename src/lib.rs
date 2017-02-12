@@ -9,7 +9,7 @@ extern crate rocket;
 pub mod schema;
 pub mod models;
 pub mod graphql;
-pub use graphql::rocket_glue::{GraphqlQuery, GraphqlResult}; // TODO: use graphql mod
+pub use graphql::rocket_glue;
 pub mod cors;
 
 use diesel::prelude::*;

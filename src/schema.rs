@@ -1,4 +1,3 @@
-// infer_schema!("dotenv:DATABASE_URL");
 table! {
     users (id) {
         id -> Int4,
@@ -6,8 +5,18 @@ table! {
         email -> Varchar,
         firstname -> Nullable<Varchar>,
         lastname -> Nullable<Varchar>,
-        pwhash -> Text,
+        pwhash -> Nullable<Text>,
         admin -> Bool,
         name_public -> Bool,
+    }
+}
+
+table! {
+    ais (id) {
+        id -> Int4,
+        name -> Varchar,
+        description -> Nullable<Varchar>,
+        elo -> Float8,
+        user_id -> Int4,
     }
 }
