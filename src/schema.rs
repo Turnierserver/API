@@ -1,4 +1,14 @@
 table! {
+    ais (id) {
+        id -> Int4,
+        user_id -> Int4,
+        name -> Varchar,
+        description -> Nullable<Varchar>,
+        elo -> Float8,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         username -> Varchar,
@@ -8,15 +18,6 @@ table! {
         pwhash -> Nullable<Text>,
         admin -> Bool,
         name_public -> Bool,
-    }
-}
-
-table! {
-    ais (id) {
-        id -> Int4,
-        user_id -> Int4,
-        name -> Varchar,
-        description -> Nullable<Varchar>,
-        elo -> Float8,
+        token -> Nullable<Text>,
     }
 }

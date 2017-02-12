@@ -12,6 +12,7 @@ pub struct User {
     pub pwhash: Option<String>,
     pub name_public: bool,
     pub admin: bool,
+    pub token: Option<String>
 }
 
 #[derive(Insertable)]

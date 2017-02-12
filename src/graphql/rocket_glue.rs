@@ -4,7 +4,7 @@ use rocket::response::status;
 use rocket::http::Status;
 use juniper::{RootNode, Variables, EmptyMutation, GraphQLType, execute};
 
-pub use super::schema::Database;
+pub use super::context::Context;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GraphqlQuery {

@@ -1,53 +1,29 @@
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use juniper::*;
+use juniper::{ID, FieldResult};
 
-use establish_connection;
+use super::Context;
+
 use models::*;
 use schema::users::dsl::*;
 
-pub struct Database {
-    conn: PgConnection,
-}
+graphql_object!(Context: Context |&self| {
+    field user_store() -> UserStore { UserStore {} }
 
-impl Database {
-    pub fn new() -> Self {
-        Database {
-            conn: establish_connection()
-        }
-    }
-}
+    field me() -> Option<&User> { self.user.as_ref() }
+});
 
-impl Context for Database {}
-
-graphql_object!(Database: Database |&self| {
-    field user_store() -> UserStore {
-        UserStore {
-            users: users.load::<User>(&self.conn).unwrap()
-        }
-    }
-
-    field me() -> FieldResult<User> {
-        unimplemented!() // Ok(users.first::<User>(&self.conn).unwrap())
+struct UserStore {}
+graphql_object!(UserStore: Context as "UserStore" |&self| {
+    field users(&executor) -> Vec<User> {
+        users.load::<User>(&executor.context().conn).unwrap()
     }
 });
 
-#[derive(Debug)]
-struct UserStore {
-    users: Vec<User>
-}
-
-graphql_object!(UserStore: Database as "UserStore" |&self| {
-    field users() -> &Vec<User> {
-        &self.users
-    }
-});
-
-graphql_object!(User: Database as "User" |&self| {
+graphql_object!(User: Context as "User" |&self| {
     description: "Ein Turnierserver-Nutzer"
 
-    field id() -> String as "Eine einzigartige Identifikationsnummer des Nutzers" {
-        format!("{}", self.id)
+    field id() -> ID as "Eine einzigartige Identifikationsnummer des Nutzers" {
+        ID::from(format!("{}", self.id))
     }
     field username() -> &String { &self.username }
     field email() -> &String { &self.email }
@@ -57,8 +33,12 @@ graphql_object!(User: Database as "User" |&self| {
         Err("Can't touch this".to_owned())
     }
 
-    field firstname() -> Option<&String> {
-        self.firstname.as_ref() // TODO: authentication
+    field firstname(&executor) -> Option<&String> {
+        if executor.context().can_access_user(&self) || self.name_public {
+            self.firstname.as_ref()
+        } else {
+            None
+        }
     }
 
 
@@ -71,22 +51,11 @@ graphql_object!(User: Database as "User" |&self| {
 
 
 
-graphql_object!(AI: Database as "AI" |&self| {
-    field id() -> String {
-        format!("{}", self.id)
-    }
-
-    field name() -> &String {
-        &self.name
-    }
-
-    field description() -> Option<&String> {
-        self.description.as_ref()
-    }
-
-    field elo() -> f64 {
-        self.elo
-    }
+graphql_object!(AI: Context as "AI" |&self| {
+    field id() -> ID { ID::from(format!("{}", self.id)) }
+    field name() -> &String { &self.name }
+    field description() -> Option<&String> { self.description.as_ref() }
+    field elo() -> f64 { self.elo }
 
     field user(&executor) -> User {
         users.find(self.user_id) // FIXME
