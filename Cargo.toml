@@ -4,6 +4,7 @@ name = "turnierserver"
 version = "0.1.0"
 
 [dependencies]
+base64 = "0.4.0"
 dotenv = "0.8.0"
 rocket = "0.2.0"
 rocket_codegen = "0.2.0"
@@ -11,10 +12,6 @@ rustyline = "1.0.0"
 serde = "0.9.7"
 serde_derive = "0.9.7"
 serde_json = "0.9.5"
-
-[dependencies.uuid]
-features = ["v4"]
-version = "0.4.0"
 
 [dependencies.diesel]
 features = ["postgres", "uuid"]
@@ -31,3 +28,7 @@ git = "https://github.com/Mrmaxmeier/juniper"
 [dependencies.rocket_contrib]
 features = ["templates", "json", "serde", "handlebars_templates"]
 version = "0.2.0"
+
+[dependencies.uuid]
+features = ["v4"]
+version = "0.4.0"
