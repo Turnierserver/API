@@ -1,7 +1,9 @@
 use super::schema::*;
 use uuid::Uuid;
+use chrono::offset::utc::UTC;
+use chrono::datetime::DateTime;
 
-#[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
+#[derive(Debug, Queryable, Identifiable, Associations, Insertable, AsChangeset)]
 #[has_many(ais)]
 #[table_name="users"]
 pub struct User {
@@ -16,6 +18,7 @@ pub struct User {
     pub token: Option<Uuid>
 }
 
+/*
 #[derive(Insertable)]
 #[table_name="users"]
 pub struct NewUser<'a> {
@@ -24,14 +27,40 @@ pub struct NewUser<'a> {
     pub pwhash: &'a str,
     pub admin: bool,
 }
+*/
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[table_name="ais"]
 #[belongs_to(User)]
-pub struct AI {
+pub struct Ai {
     pub id: i32,
     pub user_id: i32,
     pub name: String,
     pub description: Option<String>,
     pub elo: f64,
+}
+
+#[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
+#[table_name="gametypes"]
+pub struct GameType {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
+#[table_name="games"]
+pub struct Game {
+    pub id: i32,
+    pub timestamp: DateTime<UTC>,
+    pub gametype_id: i32,
+}
+
+#[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
+#[table_name="ai_game_assocs"]
+pub struct AiGameAssocs {
+    pub id: i32,
+    pub game_id: i32,
+    pub ai_id: i32,
+    pub score: Option<i32>,
+    pub rank: Option<i32>,
 }

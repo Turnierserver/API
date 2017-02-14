@@ -7,6 +7,7 @@ extern crate rocket;
 #[macro_use] extern crate serde_derive;
 extern crate uuid;
 extern crate base64;
+extern crate chrono;
 
 pub mod schema;
 pub mod models;

@@ -9,7 +9,7 @@ use schema::ais::dsl::ais;
 
 graphql_object!(Context: Context |&self| {
     field user_store() -> UserStore { UserStore {} }
-    field ai_store() -> AIStore { AIStore {} }
+    field ai_store() -> AiStore { AiStore {} }
 
     field me() -> Option<&User> { self.user.as_ref() }
 });
@@ -44,22 +44,22 @@ graphql_object!(User: Context as "User" |&self| {
     }
 
 
-    field ais(&executor) -> Vec<AI> {
-        AI::belonging_to(self)
+    field ais(&executor) -> Vec<Ai> {
+        Ai::belonging_to(self)
             .load(&executor.context().conn)
             .unwrap() // FIXME
     }
 });
 
 
-struct AIStore {}
-graphql_object!(AIStore: Context as "AIStore" |&self| {
-    field ais(&executor) -> Vec<AI> {
-        ais.load::<AI>(&executor.context().conn).unwrap()
+struct AiStore {}
+graphql_object!(AiStore: Context as "AiStore" |&self| {
+    field ais(&executor) -> Vec<Ai> {
+        ais.load::<Ai>(&executor.context().conn).unwrap()
     }
 });
 
-graphql_object!(AI: Context as "AI" |&self| {
+graphql_object!(Ai: Context as "Ai" |&self| {
     field id() -> ID { id("ai", self.id) }
     field name() -> &String { &self.name }
     field description() -> Option<&String> { self.description.as_ref() }

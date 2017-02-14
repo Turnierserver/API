@@ -49,7 +49,7 @@ impl Context {
             .unwrap_or(false)
     }
 
-    pub fn can_access_ai(&self, ai: &AI) -> bool {
+    pub fn can_access_ai(&self, ai: &Ai) -> bool {
         self.user.as_ref()
             .map(|u| u.admin || u.id == ai.user_id)
             .unwrap_or(false)
