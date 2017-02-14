@@ -1,0 +1,25 @@
+CREATE TABLE gametypes (
+  id SERIAL PRIMARY KEY NOT NULL,
+  name VARCHAR NOT NULL
+);
+
+CREATE TABLE games (
+  id SERIAL PRIMARY KEY NOT NULL,
+  timestamp TIMESTAMPTZ NOT NULL,
+  gametype_id INTEGER REFERENCES gametypes(id) NOT NULL
+);
+
+CREATE TABLE ai_game_assocs (
+  id SERIAL PRIMARY KEY NOT NULL,
+  game_id INTEGER REFERENCES games(id) NOT NULL,
+  ai_id INTEGER REFERENCES ais(id) NOT NULL,
+  rank INTEGER,
+  score INTEGER
+);
+
+INSERT INTO gametypes (name)
+  VALUES ('test gametype');
+
+ALTER TABLE ais ADD COLUMN
+  gametype_id INTEGER REFERENCES gametypes(id) NOT NULL DEFAULT 1;
+ALTER TABLE ais ALTER COLUMN gametype_id DROP DEFAULT;
