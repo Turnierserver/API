@@ -4,6 +4,7 @@ extern crate rustyline;
 
 use self::turnierserver::*;
 use self::turnierserver::models::*;
+use self::turnierserver::insert;
 use self::diesel::prelude::*;
 
 fn yesno(choice: &str, default: bool) -> bool {
@@ -64,10 +65,9 @@ fn main() {
     println!("--------------------");
 
     while yesno("Insert user?", false) {
-        let new_user = NewUser {
+        let new_user = insert::User {
             username: &*text("Username", "admin".into()),
             email: &*text("E-Mail", "admin@ad.min".into()),
-            pwhash: "pwhash",
             admin: yesno("Admin?", true)
         };
         let user = diesel::insert(&new_user).into(users::table)

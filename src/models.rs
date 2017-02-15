@@ -18,26 +18,17 @@ pub struct User {
     pub token: Option<Uuid>
 }
 
-/*
-#[derive(Insertable)]
-#[table_name="users"]
-pub struct NewUser<'a> {
-    pub username: &'a str,
-    pub email: &'a str,
-    pub pwhash: &'a str,
-    pub admin: bool,
-}
-*/
-
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[table_name="ais"]
 #[belongs_to(User)]
+#[belongs_to(GameType)]
 pub struct Ai {
     pub id: i32,
     pub user_id: i32,
     pub name: String,
     pub description: Option<String>,
     pub elo: f64,
+    pub gametype_id: i32,
 }
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
