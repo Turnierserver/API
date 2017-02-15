@@ -3,7 +3,7 @@ use uuid::Uuid;
 use chrono::offset::utc::UTC;
 use chrono::datetime::DateTime;
 
-#[derive(Debug, Queryable, Identifiable, Associations, Insertable, AsChangeset)]
+#[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[has_many(ais)]
 #[table_name="users"]
 pub struct User {
@@ -19,9 +19,8 @@ pub struct User {
 }
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
+#[belongs_to(User, GameType)]
 #[table_name="ais"]
-#[belongs_to(User)]
-#[belongs_to(GameType)]
 pub struct Ai {
     pub id: i32,
     pub user_id: i32,
@@ -32,6 +31,8 @@ pub struct Ai {
 }
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
+#[has_many(ais, foreign_key="gametype_id")]
+#[has_many(games, foreign_key="gametype_id")]
 #[table_name="gametypes"]
 pub struct GameType {
     pub id: i32,
@@ -40,6 +41,7 @@ pub struct GameType {
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[table_name="games"]
+#[belongs_to(GameType)]
 pub struct Game {
     pub id: i32,
     pub timestamp: DateTime<UTC>,

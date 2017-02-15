@@ -4,12 +4,17 @@ use juniper::{ID, FieldResult};
 use super::{Context, id};
 
 use models::*;
+use schema;
 use schema::users::dsl::users;
 use schema::ais::dsl::ais;
+use schema::gametypes::dsl::gametypes;
+use schema::ai_game_assocs::dsl::ai_game_assocs;
+
 
 graphql_object!(Context: Context |&self| {
     field user_store() -> UserStore { UserStore {} }
     field ai_store() -> AiStore { AiStore {} }
+    field gametype_store() -> GameTypeStore { GameTypeStore {} }
 
     field me() -> Option<&User> { self.user.as_ref() }
 });
@@ -43,7 +48,6 @@ graphql_object!(User: Context as "User" |&self| {
         }
     }
 
-
     field ais(&executor) -> Vec<Ai> {
         Ai::belonging_to(self)
             .load(&executor.context().conn)
@@ -69,5 +73,34 @@ graphql_object!(Ai: Context as "Ai" |&self| {
         users.find(self.user_id) // FIXME
             .first(&executor.context().conn)
             .unwrap() // FIXME
+    }
+
+    field gametype(&executor) -> GameType {
+        gametypes.find(self.gametype_id) // FIXME
+            .first(&executor.context().conn)
+            .unwrap() // FIXME
+    }
+});
+
+struct GameTypeStore {}
+graphql_object!(GameTypeStore: Context as "GameTypeStore" |&self| {
+    field gametypes(&executor) -> Vec<GameType> {
+        gametypes.load::<GameType>(&executor.context().conn).unwrap()
+    }
+});
+
+graphql_object!(GameType: Context as "GameType" |&self| {
+    field id() -> ID { id("gametype", self.id) }
+    field name() -> &String { &self.name }
+
+    field ais(&executor) -> Vec<Ai> {
+        /*
+        Ai::belonging_to(self)
+            .load(&executor.context().conn)
+            .unwrap() // FIXME
+        */
+        ais.filter(schema::ais::columns::gametype_id.eq(self.id))
+            .load(&executor.context().conn)
+            .unwrap() // FIXME, belonging_to
     }
 });
