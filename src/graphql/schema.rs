@@ -48,10 +48,8 @@ graphql_object!(User: Context as "User" |&self| {
         }
     }
 
-    field ais(&executor) -> Vec<Ai> {
-        Ai::belonging_to(self)
-            .load(&executor.context().conn)
-            .unwrap() // FIXME
+    field ais(&executor) -> FieldResult<Vec<Ai>> {
+        executor.context().try(|conn| Ai::belonging_to(self).load(conn))
     }
 });
 
@@ -69,16 +67,15 @@ graphql_object!(Ai: Context as "Ai" |&self| {
     field description() -> Option<&String> { self.description.as_ref() }
     field elo() -> f64 { self.elo }
 
-    field user(&executor) -> User {
-        users.find(self.user_id) // FIXME
-            .first(&executor.context().conn)
-            .unwrap() // FIXME
+    field user(&executor) -> FieldResult<User> {
+        executor.context().try(|conn| users.find(self.user_id).first(conn))
     }
 
-    field gametype(&executor) -> GameType {
-        gametypes.find(self.gametype_id) // FIXME
-            .first(&executor.context().conn)
-            .unwrap() // FIXME
+    field gametype(&executor) -> FieldResult<GameType> {
+        executor.context().try(|conn|
+            gametypes.find(self.gametype_id) // FIXME
+                .first(conn)
+        )
     }
 });
 
@@ -93,14 +90,8 @@ graphql_object!(GameType: Context as "GameType" |&self| {
     field id() -> ID { id("gametype", self.id) }
     field name() -> &String { &self.name }
 
-    field ais(&executor) -> Vec<Ai> {
-        /*
-        Ai::belonging_to(self)
-            .load(&executor.context().conn)
-            .unwrap() // FIXME
-        */
-        ais.filter(schema::ais::columns::gametype_id.eq(self.id))
-            .load(&executor.context().conn)
-            .unwrap() // FIXME, belonging_to
+    field ais(&executor) -> FieldResult<Vec<Ai>> {
+        // FIXME: belonging_to
+        executor.context().try(|conn| ais.filter(schema::ais::columns::gametype_id.eq(self.id)).load(conn))
     }
 });

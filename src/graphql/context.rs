@@ -1,8 +1,10 @@
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use juniper;
+use juniper::FieldResult;
 use rocket::http::Cookies;
 use uuid::Uuid;
+use std::fmt::Debug;
 
 use models::*;
 use schema::users;
@@ -53,6 +55,15 @@ impl Context {
         self.user.as_ref()
             .map(|u| u.admin || u.id == ai.user_id)
             .unwrap_or(false)
+    }
+
+    pub fn try<T, F, E>(&self, func: F) -> FieldResult<T>
+        where F: Fn(&PgConnection) -> Result<T, E>,
+            E: Debug {
+        func(&self.conn).map_err(|e| {
+            println!("{:?}", e);
+            "database failure".to_owned()
+        })
     }
 }
 
