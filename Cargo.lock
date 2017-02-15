@@ -3,7 +3,7 @@ name = "turnierserver"
 version = "0.1.0"
 dependencies = [
  "base64 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "chrono 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel_codegen 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "dotenv 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -65,15 +65,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "chrono"
 version = "0.2.25"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "num 0.1.36 (registry+https://github.com/rust-lang/crates.io-index)",
- "time 0.1.36 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "chrono"
-version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num 0.1.36 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -699,7 +690,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum byteorder 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)" = "29b2aa490a8f546381308d68fc79e6bd753cd3ad839f7a7172897f1feedfa175"
 "checksum byteorder 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c40977b0ee6b9885c9013cd41d9feffdd22deb3bb4dc3a71d901cc7a77de18c8"
 "checksum chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)" = "9213f7cd7c27e95c2b57c49f0e69b1ea65b27138da84a170133fd21b07659c00"
-"checksum chrono 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "158b0bd7d75cbb6bf9c25967a48a2e9f77da95876b858eadfabaa99cd069de6e"
 "checksum cookie 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "996d588f292836540edfa5a83e53c30f5ebe9f881be4e48fa1810fb6c4a34092"
 "checksum diesel 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "5bdb238ea4720899a4ddfebfe08ddac87f85e5eab8edf065f86e3b234b957433"
 "checksum diesel_codegen 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "bfc2216368d51c9dac930dd167de4eff79dd7f26f5843d27bc9e7e382d9173fe"
