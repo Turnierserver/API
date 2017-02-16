@@ -13,8 +13,8 @@ pub struct User {
     pub firstname: Option<String>,
     pub lastname: Option<String>,
     pub pwhash: Option<String>,
-    pub name_public: bool,
     pub admin: bool,
+    pub name_public: bool,
     pub token: Option<Uuid>
 }
 
