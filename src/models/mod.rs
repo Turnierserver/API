@@ -2,21 +2,10 @@ use super::schema::*;
 use uuid::Uuid;
 use chrono::offset::utc::UTC;
 use chrono::datetime::DateTime;
+use bcrypt;
 
-#[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
-#[has_many(ais)]
-#[table_name="users"]
-pub struct User {
-    pub id: i32,
-    pub username: String,
-    pub email: String,
-    pub firstname: Option<String>,
-    pub lastname: Option<String>,
-    pub pwhash: Option<String>,
-    pub name_public: bool,
-    pub admin: bool,
-    pub token: Option<Uuid>
-}
+mod user;
+pub use self::user::User;
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[belongs_to(User, GameType)]

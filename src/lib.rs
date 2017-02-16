@@ -8,6 +8,7 @@ extern crate rocket;
 extern crate uuid;
 extern crate base64;
 extern crate chrono;
+extern crate bcrypt;
 
 pub mod schema;
 pub mod models;
