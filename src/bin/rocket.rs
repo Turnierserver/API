@@ -5,7 +5,6 @@ extern crate rocket;
 extern crate rocket_contrib;
 extern crate juniper;
 extern crate turnierserver;
-#[macro_use] extern crate serde_derive;
 
 use rocket_contrib::JSON;
 use rocket::response::NamedFile;
@@ -35,30 +34,12 @@ fn get_graphql(cookies: &Cookies, query: &str) -> Cors<GraphqlResult> {
         query: query.into(),
         variables: None
     };
-    Cors(q.execute(
-        Context::new(cookies), // TODO
-        Context::new(cookies),
-    ))
+    Cors(q.execute(Context::new(cookies)))
 }
 
 #[post("/graphql", data = "<query>")]
 fn post_graphql(cookies: &Cookies, query: JSON<GraphqlQuery>) -> Cors<GraphqlResult> {
-    Cors(query.execute(
-        Context::new(cookies),
-        Context::new(cookies),
-    ))
-}
-
-
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Auth {
-    pub query: String,
-}
-
-#[post("/auth", data = "<auth>")]
-fn auth(cookies: &Cookies, auth: JSON<Auth>) -> Cors<&str> {
-    Cors("ok")
+    Cors(query.execute(Context::new(cookies)))
 }
 
 fn main() {
@@ -67,7 +48,6 @@ fn main() {
         post_graphql,
         options_graphql,
         graphiql,
-        graphiql_w_query,
-        auth
+        graphiql_w_query
     ]).launch();
 }

@@ -2,9 +2,10 @@ use std::collections::HashMap;
 use rocket_contrib::{JSON, Value};
 use rocket::response::status;
 use rocket::http::Status;
-use juniper::{RootNode, Variables, EmptyMutation, GraphQLType, execute};
+use juniper::{RootNode, Variables, execute};
 
 pub use super::context::Context;
+use super::schema;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GraphqlQuery {
@@ -15,12 +16,9 @@ pub struct GraphqlQuery {
 pub type GraphqlResult = status::Custom<JSON<Value>>;
 
 impl GraphqlQuery {
-    pub fn execute<CtxT, Q>(&self, query: Q, context: CtxT) -> GraphqlResult
-        where Q: GraphQLType<Context=CtxT>,
-            CtxT: GraphQLType {
+    pub fn execute(&self, context: Context) -> GraphqlResult {
         println!("{}", self.query);
-        let mutation = EmptyMutation::<CtxT>::new();
-        let root = RootNode::new(query, mutation);
+        let root = RootNode::new(schema::Query, schema::Mutation);
         let vars = self.variables.clone().unwrap_or(HashMap::new());
 
         let result = execute(self.query.as_str(), None, &root, &vars, &context);

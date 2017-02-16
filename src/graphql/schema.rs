@@ -8,15 +8,25 @@ use schema;
 use schema::users::dsl::users;
 use schema::ais::dsl::ais;
 use schema::gametypes::dsl::gametypes;
-use schema::ai_game_assocs::dsl::ai_game_assocs;
+// use schema::ai_game_assocs::dsl::ai_game_assocs;
 
-
-graphql_object!(Context: Context |&self| {
+pub struct Query;
+graphql_object!(Query: Context as "Query" |&self| {
     field user_store() -> UserStore { UserStore {} }
     field ai_store() -> AiStore { AiStore {} }
     field gametype_store() -> GameTypeStore { GameTypeStore {} }
 
-    field me() -> Option<&User> { self.user.as_ref() }
+    field me(&executor) -> Option<&User> {
+        executor.context().user.as_ref()
+    }
+});
+
+
+pub struct Mutation;
+graphql_object!(Mutation: Context as "Mutation" |&self| {
+    field test_mutate(new_val: i64) -> FieldResult<bool> {
+        Ok(new_val > 1)
+    }
 });
 
 struct UserStore {}
