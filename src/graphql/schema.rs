@@ -9,7 +9,7 @@ use schema::users::dsl::users;
 use schema::ais::dsl::ais;
 use schema::gametypes::dsl::gametypes;
 use schema::games::dsl::games;
-// use schema::ai_game_assocs::dsl::ai_game_assocs;
+use schema::ai_game_assocs::dsl::ai_game_assocs;
 
 pub struct Query;
 graphql_object!(Query: Context as "Query" |&self| {
@@ -89,6 +89,13 @@ graphql_object!(Ai: Context as "Ai" |&self| {
                 .first(conn)
         )
     }
+
+    field games(&executor) -> FieldResult<Vec<AiGameAssocs>> {
+        executor.context().try(|conn|
+            ai_game_assocs.filter(schema::ai_game_assocs::columns::ai_id.eq(self.id))
+                .load(conn)
+        )
+    }
 });
 
 struct GameTypeStore;
@@ -121,6 +128,13 @@ graphql_object!(Game: Context as "Game" |&self| {
     field gametype(&executor) -> FieldResult<GameType> {
         executor.context().try(|conn|
             gametypes.find(self.gametype_id).first(conn)
+        )
+    }
+
+    field ais(&executor) -> FieldResult<Vec<AiGameAssocs>> {
+        executor.context().try(|conn|
+            ai_game_assocs.filter(schema::ai_game_assocs::columns::game_id.eq(self.id))
+                .load(conn)
         )
     }
 });
