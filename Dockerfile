@@ -5,7 +5,7 @@ EXPOSE 8000
 WORKDIR /srv/api
 
 RUN pacman --noconfirm -Syu \
- && pacman --noconfirm -S gcc rustup postgresql postgresql-libs \
+ && pacman --noconfirm -S gcc clang rustup postgresql postgresql-libs \
  && rustup toolchain install nightly \
  && rustup default nightly \
  && cargo install diesel_cli --no-default-features --features postgres \

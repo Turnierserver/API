@@ -8,13 +8,15 @@ use schema;
 use schema::users::dsl::users;
 use schema::ais::dsl::ais;
 use schema::gametypes::dsl::gametypes;
+use schema::games::dsl::games;
 // use schema::ai_game_assocs::dsl::ai_game_assocs;
 
 pub struct Query;
 graphql_object!(Query: Context as "Query" |&self| {
-    field user_store() -> UserStore { UserStore {} }
-    field ai_store() -> AiStore { AiStore {} }
-    field gametype_store() -> GameTypeStore { GameTypeStore {} }
+    field user_store() -> UserStore { UserStore }
+    field ai_store() -> AiStore { AiStore }
+    field game_store() -> GameStore { GameStore }
+    field gametype_store() -> GameTypeStore { GameTypeStore }
 
     field me(&executor) -> Option<&User> {
         executor.context().user.as_ref()
@@ -29,10 +31,10 @@ graphql_object!(Mutation: Context as "Mutation" |&self| {
     }
 });
 
-struct UserStore {}
+struct UserStore;
 graphql_object!(UserStore: Context as "UserStore" |&self| {
-    field users(&executor) -> Vec<User> {
-        users.load::<User>(&executor.context().conn).unwrap()
+    field users(&executor) -> FieldResult<Vec<User>> {
+        executor.context().try(|conn| users.load(conn))
     }
 });
 
@@ -64,10 +66,10 @@ graphql_object!(User: Context as "User" |&self| {
 });
 
 
-struct AiStore {}
+struct AiStore;
 graphql_object!(AiStore: Context as "AiStore" |&self| {
-    field ais(&executor) -> Vec<Ai> {
-        ais.load::<Ai>(&executor.context().conn).unwrap()
+    field ais(&executor) -> FieldResult<Vec<Ai>> {
+        executor.context().try(|conn| ais.load(conn))
     }
 });
 
@@ -89,10 +91,10 @@ graphql_object!(Ai: Context as "Ai" |&self| {
     }
 });
 
-struct GameTypeStore {}
+struct GameTypeStore;
 graphql_object!(GameTypeStore: Context as "GameTypeStore" |&self| {
-    field gametypes(&executor) -> Vec<GameType> {
-        gametypes.load::<GameType>(&executor.context().conn).unwrap()
+    field gametypes(&executor) -> FieldResult<Vec<GameType>> {
+        executor.context().try(|conn| gametypes.load(conn))
     }
 });
 
@@ -103,5 +105,36 @@ graphql_object!(GameType: Context as "GameType" |&self| {
     field ais(&executor) -> FieldResult<Vec<Ai>> {
         // FIXME: belonging_to
         executor.context().try(|conn| ais.filter(schema::ais::columns::gametype_id.eq(self.id)).load(conn))
+    }
+});
+
+struct GameStore;
+graphql_object!(GameStore: Context as "GameStore" |&self| {
+    field games(&executor) -> FieldResult<Vec<Game>> {
+        executor.context().try(|conn| games.load(conn))
+    }
+});
+
+graphql_object!(Game: Context as "Game" |&self| {
+    field id() -> ID { id("game", self.id) }
+
+    field gametype(&executor) -> FieldResult<GameType> {
+        executor.context().try(|conn|
+            gametypes.find(self.gametype_id).first(conn)
+        )
+    }
+});
+
+graphql_object!(AiGameAssocs: Context as "AiGameConnection" |&self| {
+    field id() -> ID { id("aigameassoc", self.id) }
+    field score() -> Option<i64> { self.score.map(|v| v as _) }
+    field rank() -> Option<i64> { self.rank.map(|v| v as _) }
+
+    field game(&executor) -> FieldResult<Game> {
+        executor.context().try(|conn| games.find(self.game_id).first(conn))
+    }
+
+    field ai(&executor) -> FieldResult<Ai> {
+        executor.context().try(|conn| ais.find(self.ai_id).first(conn))
     }
 });
