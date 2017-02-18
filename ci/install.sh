@@ -26,6 +26,8 @@ main() {
            --git japaric/cross \
            --tag $tag \
            --target $target
+
+    sudo apt-get install libpq-dev libclang-common-dev
 }
 
 main

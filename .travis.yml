@@ -22,12 +22,11 @@ matrix:
   # TODO These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   include:
-    - env: TARGET=i686-unknown-linux-gnu
+    # - env: TARGET=i686-unknown-linux-gnu
 
 before_install: set -e
 
 install:
-  - sudo apt-get install libpq-dev
   - sh ci/install.sh
   - source ~/.cargo/env || true
 
