@@ -2,8 +2,6 @@ language: rust
 sudo: required
 dist: trusty
 rust:
-  - stable
-  - beta
   - nightly
 cache: cargo
 addons:
@@ -13,7 +11,7 @@ before_script:
   - export PATH=$HOME/.local/bin:$PATH
 script:
 - |
-  travis-cargo build --bin rocket
+  travis-cargo build
 matrix:
   include:
   - rust: nightly
