@@ -1,75 +1,23 @@
-# Based on the "trust" template v0.1.1
-# https://github.com/japaric/trust/tree/v0.1.1
-
-dist: trusty
 language: rust
-services: docker
 sudo: required
+dist: trusty
+rust:
+  - stable
+  - beta
+  - nightly
+cache: cargo
 addons:
   postgresql: '9.5'
-
-# TODO This is the Rust channel that build jobs will use by default but can be
-# overridden on a case by case basis down below
-rust: nightly
-
-env:
-  global:
-    # TODO Update this to match the name of your project.
-    - CRATE_NAME=turnierserver
-
-    # default job
-    - TARGET=x86_64-unknown-linux-gnu
-
-matrix:
-  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
-  # don't need
-  include:
-    # - env: TARGET=i686-unknown-linux-gnu
-
-before_install: set -e
-
-install:
-  - sh ci/install.sh
-  - source ~/.cargo/env || true
-
+before_script:
+  - pip install 'travis-cargo<0.2' --user
+  - export PATH=$HOME/.local/bin:$PATH
 script:
-  - bash ci/script.sh
-
-after_script: set +e
-
-before_deploy:
-  - sh ci/before_deploy.sh
-
-deploy:
-  # TODO update `api_key.secure`
-  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
-  # - Encrypt it: `travis encrypt YOUR_TOKEN`
-  # - Paste the output down here
-  api_key:
-    secure: Fcv40RlUGrEkm6UjfOE5Uh/qQMXkmuRuPzqx53lCrEAYjWT3acBxp7T6tdGCDjg8JyKSP1gyYygKXc50Y9/8NV7R2b9i8Obcg/uIIsXiTJzWCtUcGs3LfFVmXb4fbbpgZkhl4Fab0GVX0iwZLXyfOm285qSLjtpbsydTz1SXhg4y8eEu8XuIPU2JST2lfhGxo8t5F4y3/L/V2d8MwKlBdCApi2IqcTcS6J47yQjQLhZmWSJGAMT8BC2cB40gchUF168A/vlFEXqOYgiDybgm/IE1+CopPJL1vOu6dv4i6b3gclYGoRmm3KctqMEwFh853jekxPPJxVg/cJ3q03JdUzGJIy7/wiX0dal9jHrbtfrJQQwsfv1Y4b5IcRaVOdv3fDvHCpehowVibGmTq2W/TqlZS6T97rIcbJ1y0BHZbBSI2nODOCUar99OyRPgJtlQ6fwtONBo/2aF9ji0QSVmgF9iOxav/BeMrj+TxB6jaAfxLslzRxMsnyD7A5Wf5NTSLv0NKK2n7O3Pf1mPKqt09a0ZZNnCrRDZR+BBeb/93nG6zkgkqEgwUSGNbrmB9VfZ/61ROFRn5ADtY/6snFZQgTi5/FO4eYYIsMkIJw5YQI4AluT7yX4U4JhIzlwyMy5e+QM4SU8AUSH86vYZt5XE2W+BGfwfJnE3QUHZY8QLdro=
-  file_glob: true
-  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
-  on:
-    # TODO Here you can pick which targets will generate binary releases
-    # In this example, there are some targets that are tested using the stable
-    # and nightly channels. This condition makes sure there is only one release
-    # for such targets and that's generated using the stable channel
-    condition: $TRAVIS_RUST_VERSION = nightly
-    tags: true
-  provider: releases
-  skip_cleanup: true
-
-cache: cargo
-before_cache:
-  # Travis can't cache files that are not readable by "others"
-  - chmod -R a+r $HOME/.cargo
-
+- |
+  travis-cargo build --bin rocket
+matrix:
+  include:
+  - rust: nightly
 branches:
   only:
-    # release tags
-    - /^v\d+\.\d+\.\d+.*$/
     - master
-
-notifications:
-  email:
-    on_success: never
+    - /^v\d+\.\d+\.\d+.*$/
