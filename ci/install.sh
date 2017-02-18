@@ -27,7 +27,7 @@ main() {
            --tag $tag \
            --target $target
 
-    sudo apt-get install libpq-dev libclang-common-dev
+    sudo apt-get install libpq-dev libclang-dev
 }
 
 main
