@@ -42,6 +42,14 @@ table! {
 }
 
 table! {
+    tokens (id) {
+        id -> Uuid,
+        user_id -> Int4,
+        timestamp -> Timestamptz,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         username -> Varchar,
@@ -51,7 +59,6 @@ table! {
         pwhash -> Nullable<Text>,
         admin -> Bool,
         name_public -> Bool,
-        token -> Nullable<Uuid>,
     }
 }
 

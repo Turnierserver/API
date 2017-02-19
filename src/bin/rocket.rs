@@ -34,12 +34,14 @@ fn get_graphql(cookies: &Cookies, query: &str) -> Cors<GraphqlResult> {
         query: query.into(),
         variables: None
     };
-    Cors(q.execute(Context::new(cookies)))
+    let context = Context::new(cookies);
+    Cors(q.execute(context, cookies))
 }
 
 #[post("/graphql", data = "<query>")]
 fn post_graphql(cookies: &Cookies, query: JSON<GraphqlQuery>) -> Cors<GraphqlResult> {
-    Cors(query.execute(Context::new(cookies)))
+    let context = Context::new(cookies);
+    Cors(query.execute(context, cookies))
 }
 
 fn main() {

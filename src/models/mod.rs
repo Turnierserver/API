@@ -72,3 +72,12 @@ pub struct Lang {
     pub id: i32,
     pub name: String,
 }
+
+#[derive(Debug, Queryable, Identifiable, Insertable, Associations, AsChangeset)]
+#[belongs_to(User)]
+#[table_name="tokens"]
+pub struct Token {
+    pub id: Uuid,
+    pub user_id: i32,
+    pub timestamp: DateTime<UTC>
+}

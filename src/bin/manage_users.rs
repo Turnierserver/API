@@ -87,5 +87,9 @@ fn main() {
         user.email = text("=> new email:", user.email.clone());
         user.admin = yesno("=> admin?", user.admin);
         user.save_changes::<User>(&connection).unwrap();
+
+        if yesno("set password?", false) {
+            user.set_pass(&*text("=> password?", "foobar".into()), &connection).unwrap();
+        }
     }
 }

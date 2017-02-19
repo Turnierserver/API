@@ -5,43 +5,38 @@ use juniper::FieldResult;
 use rocket::http::Cookies;
 use uuid::Uuid;
 use std::fmt::Debug;
+use std::cell::RefCell;
 
 use models::*;
 use schema::users;
 use schema::users::dsl::*;
+use schema::tokens::dsl::*;
 use establish_connection;
 
 pub struct Context {
     pub user: Option<User>,
     pub conn: PgConnection,
+    pub set_cookies: RefCell<Vec<(String, String)>>
 }
 
 impl Context {
     pub fn new(cookies: &Cookies) -> Self {
         let conn = establish_connection(); // TODO: r2d2-diesel
 
-        let user = cookies.find("user")
-            .and_then(|name| cookies.find("token").map(|_token| {
-                let name = name.value().to_owned();
-                let _token = _token.value().to_owned();
-                (name, _token)
-            }))
-            .and_then(|(name, _token)| {
-                let user = users
-                    .filter(users::columns::username.eq(name))
+        let user = cookies.find("token")
+            .and_then(|token| Uuid::parse_str(token.value()).ok())
+            .and_then(|token| tokens.find(token).first::<Token>(&conn).ok())
+            .and_then(|token| {
+                users
+                    .filter(users::columns::id.eq(token.user_id))
                     .first::<User>(&conn)
-                    .unwrap();
-
-                if user.token == Uuid::parse_str(&*_token).ok() {
-                    Some(user)
-                } else {
-                    None
-                }
+                    .ok()
             });
 
         Context {
             user: user,
             conn: conn,
+            set_cookies: RefCell::new(Vec::new())
         }
     }
 
@@ -64,6 +59,11 @@ impl Context {
             println!("{:?}", e);
             "database failure".to_owned()
         })
+    }
+
+    pub fn set_token_cookie(&self, token: &str) {
+        self.set_cookies.borrow_mut()
+            .push(("token".into(), token.into()))
     }
 }
 

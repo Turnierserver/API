@@ -18,8 +18,8 @@ CREATE TABLE ais (
 );
 
 WITH admin AS (
-  INSERT INTO users (username, email, admin)
-    VALUES ('admin', 'admin@ad.min', TRUE)
+  INSERT INTO users (username, email, admin, pwhash)
+    VALUES ('admin', 'admin@ad.min', TRUE, '$2y$12$pipJrd3RKt8uCzmIDlxaVe//zq9lNuKFyT9QggV9J0jGwZI6ipiIO')
     RETURNING *
 )
 INSERT INTO ais (name, user_id)

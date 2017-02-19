@@ -29,6 +29,22 @@ graphql_object!(Mutation: Context as "Mutation" |&self| {
     field test_mutate(new_val: i64) -> FieldResult<bool> {
         Ok(new_val > 1)
     }
+
+    field auth_pw(&executor, username: String, password: String) -> FieldResult<String> {
+        let user = User::named(username, &executor.context().conn)
+            .map_err(|_| "unauthorized".to_owned())?;
+
+        if user.verify_pass(&*password) {
+            let token = executor.context().try(|conn| user.token(conn).map(
+                |token| token.hyphenated().to_string()
+            ))?;
+            executor.context().set_token_cookie(&*token);
+            Ok(token)
+        } else {
+            println!("invalid password");
+            Err("unauthorized".to_owned())
+        }
+    }
 });
 
 struct UserStore;
@@ -48,8 +64,12 @@ graphql_object!(User: Context as "User" |&self| {
     field email() -> &String { &self.email }
     field admin() -> bool { self.admin }
 
-    field secret() -> FieldResult<&String> {
-        Err("Can't touch this".to_owned())
+    field secret(&executor) -> FieldResult<String> {
+        if executor.context().can_access_user(&self) {
+            Ok("foobar".to_owned())
+        } else {
+            Err("Can't touch this".to_owned())
+        }
     }
 
     field firstname(&executor) -> Option<&String> {
