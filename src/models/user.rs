@@ -1,7 +1,8 @@
 use diesel;
-use diesel::SaveChangesDsl;
+use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use super::*;
+use schema::users::dsl;
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[has_many(ais)]
@@ -29,5 +30,10 @@ impl User {
         let hash = bcrypt::hash(pw, bcrypt::DEFAULT_COST).unwrap();
         self.pwhash = Some(hash);
         self.save_changes::<User>(conn)
+    }
+
+    pub fn named(name: String, conn: &PgConnection) -> Result<User, diesel::result::Error> {
+        dsl::users.filter(dsl::username.eq(name))
+            .first(conn)
     }
 }

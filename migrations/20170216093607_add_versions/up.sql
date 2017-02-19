@@ -1,0 +1,13 @@
+CREATE TABLE langs (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR NOT NULL
+);
+
+CREATE TABLE versions (
+    id SERIAL PRIMARY KEY NOT NULL,
+    ai_id INTEGER REFERENCES ais(id) NOT NULL,
+    lang_id INTEGER REFERENCES langs(id) NOT NULL,
+    compiled BOOLEAN NOT NULL DEFAULT 'f',
+    qualified BOOLEAN NOT NULL DEFAULT 'f',
+    published BOOLEAN NOT NULL DEFAULT 'f'
+);

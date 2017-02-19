@@ -35,6 +35,13 @@ table! {
 }
 
 table! {
+    langs (id) {
+        id -> Int4,
+        name -> Varchar,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         username -> Varchar,
@@ -45,5 +52,16 @@ table! {
         admin -> Bool,
         name_public -> Bool,
         token -> Nullable<Uuid>,
+    }
+}
+
+table! {
+    versions (id) {
+        id -> Int4,
+        ai_id -> Int4,
+        lang_id -> Int4,
+        compiled -> Bool,
+        qualified -> Bool,
+        published -> Bool,
     }
 }
