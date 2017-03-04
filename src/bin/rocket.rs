@@ -45,6 +45,7 @@ fn post_graphql(cookies: &Cookies, query: JSON<GraphqlQuery>) -> Cors<GraphqlRes
 }
 
 fn main() {
+    let _ = turnierserver::establish_connection();
     rocket::ignite().mount("/", routes![
         get_graphql,
         post_graphql,

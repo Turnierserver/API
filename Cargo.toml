@@ -22,7 +22,7 @@ version = "0.11.0"
 
 [dependencies.juniper]
 features = ["serde"]
-git = "https://github.com/Mrmaxmeier/juniper"
+git = "https://github.com/mhallin/juniper"
 
 [dependencies.rocket_contrib]
 features = ["templates", "json", "serde", "handlebars_templates"]

@@ -1,3 +1,4 @@
+#![allow(unknown_lints, redundant_closure_call)] // TODO: fix juniper
 use diesel::prelude::*;
 use juniper::{ID, FieldResult};
 
@@ -17,40 +18,16 @@ graphql_object!(Query: Context as "Query" |&self| {
     field ai_store() -> AiStore { AiStore }
     field game_store() -> GameStore { GameStore }
     field gametype_store() -> GameTypeStore { GameTypeStore }
-
-    field me(&executor) -> Option<&User> {
-        executor.context().user.as_ref()
-    }
-});
-
-
-pub struct Mutation;
-graphql_object!(Mutation: Context as "Mutation" |&self| {
-    field test_mutate(new_val: i64) -> FieldResult<bool> {
-        Ok(new_val > 1)
-    }
-
-    field auth_pw(&executor, username: String, password: String) -> FieldResult<String> {
-        let user = User::named(username, &executor.context().conn)
-            .map_err(|_| "unauthorized".to_owned())?;
-
-        if user.verify_pass(&*password) {
-            let token = executor.context().try(|conn| user.token(conn).map(
-                |token| token.hyphenated().to_string()
-            ))?;
-            executor.context().set_token_cookie(&*token);
-            Ok(token)
-        } else {
-            println!("invalid password");
-            Err("unauthorized".to_owned())
-        }
-    }
 });
 
 struct UserStore;
 graphql_object!(UserStore: Context as "UserStore" |&self| {
     field users(&executor) -> FieldResult<Vec<User>> {
         executor.context().try(|conn| users.load(conn))
+    }
+
+    field me(&executor) -> Option<&User> {
+        executor.context().user.as_ref()
     }
 });
 
@@ -80,6 +57,14 @@ graphql_object!(User: Context as "User" |&self| {
         }
     }
 
+    field lastname(&executor) -> Option<&String> {
+        if executor.context().can_access_user(&self) || self.name_public {
+            self.lastname.as_ref()
+        } else {
+            None
+        }
+    }
+
     field ais(&executor) -> FieldResult<Vec<Ai>> {
         executor.context().try(|conn| Ai::belonging_to(self).load(conn))
     }
@@ -98,6 +83,7 @@ graphql_object!(Ai: Context as "Ai" |&self| {
     field name() -> &String { &self.name }
     field description() -> Option<&String> { self.description.as_ref() }
     field elo() -> f64 { self.elo }
+    field icon() -> &str { "https://i.imgur.com/OTtzg4F.png" /* TODO: implement icons */ }
 
     field user(&executor) -> FieldResult<User> {
         executor.context().try(|conn| users.find(self.user_id).first(conn))

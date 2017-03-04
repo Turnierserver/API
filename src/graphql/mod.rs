@@ -1,8 +1,10 @@
 pub mod rocket_glue;
 mod context;
 pub use self::context::Context;
-mod schema;
-pub use self::schema::*;
+mod query;
+pub use self::query::*;
+mod mutation;
+pub use self::mutation::*;
 
 use juniper::ID;
 use base64::encode;
