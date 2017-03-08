@@ -2,7 +2,7 @@
 use diesel::prelude::*;
 use juniper::{ID, FieldResult};
 
-use super::{Context, id};
+use super::{Context, IDKind};
 
 use models::*;
 use schema;
@@ -26,6 +26,13 @@ graphql_object!(UserStore: Context as "UserStore" |&self| {
         executor.context().try(|conn| users.load(conn))
     }
 
+    field user(&executor, id: ID) -> FieldResult<User> {
+        let id = IDKind::User.dec(&id)?;
+        executor.context().try(|conn| {
+            users.find(id).first(conn)
+        })
+    }
+
     field me(&executor) -> Option<&User> {
         executor.context().user.as_ref()
     }
@@ -35,19 +42,13 @@ graphql_object!(User: Context as "User" |&self| {
     description: "Ein Turnierserver-Nutzer"
 
     field id() -> ID as "Eine einzigartige Identifikationsnummer des Nutzers" {
-        id("user", self.id)
+        IDKind::User.enc(self.id)
     }
     field username() -> &String { &self.username }
     field email() -> &String { &self.email }
     field admin() -> bool { self.admin }
 
-    field secret(&executor) -> FieldResult<String> {
-        if executor.context().can_access_user(&self) {
-            Ok("foobar".to_owned())
-        } else {
-            Err("Can't touch this".to_owned())
-        }
-    }
+    field canEdit(&executor) -> bool { executor.context().can_access_user(&self) }
 
     field firstname(&executor) -> Option<&String> {
         if executor.context().can_access_user(&self) || self.name_public {
@@ -79,10 +80,11 @@ graphql_object!(AiStore: Context as "AiStore" |&self| {
 });
 
 graphql_object!(Ai: Context as "Ai" |&self| {
-    field id() -> ID { id("ai", self.id) }
+    field id() -> ID { IDKind::Ai.enc(self.id) }
     field name() -> &String { &self.name }
     field description() -> Option<&String> { self.description.as_ref() }
     field elo() -> f64 { self.elo }
+    field rank() -> i64 { 0 }
     field icon() -> &str { "https://i.imgur.com/OTtzg4F.png" /* TODO: implement icons */ }
 
     field user(&executor) -> FieldResult<User> {
@@ -91,14 +93,16 @@ graphql_object!(Ai: Context as "Ai" |&self| {
 
     field gametype(&executor) -> FieldResult<GameType> {
         executor.context().try(|conn|
-            gametypes.find(self.gametype_id) // FIXME
+            gametypes
+                .find(self.gametype_id)
                 .first(conn)
         )
     }
 
     field games(&executor) -> FieldResult<Vec<AiGameAssocs>> {
         executor.context().try(|conn|
-            ai_game_assocs.filter(schema::ai_game_assocs::columns::ai_id.eq(self.id))
+            ai_game_assocs
+                .filter(schema::ai_game_assocs::columns::ai_id.eq(self.id))
                 .load(conn)
         )
     }
@@ -112,7 +116,7 @@ graphql_object!(GameTypeStore: Context as "GameTypeStore" |&self| {
 });
 
 graphql_object!(GameType: Context as "GameType" |&self| {
-    field id() -> ID { id("gametype", self.id) }
+    field id() -> ID { IDKind::Gametype.enc(self.id) }
     field name() -> &String { &self.name }
 
     field ais(&executor) -> FieldResult<Vec<Ai>> {
@@ -129,7 +133,7 @@ graphql_object!(GameStore: Context as "GameStore" |&self| {
 });
 
 graphql_object!(Game: Context as "Game" |&self| {
-    field id() -> ID { id("game", self.id) }
+    field id() -> ID { IDKind::Game.enc(self.id) }
 
     field gametype(&executor) -> FieldResult<GameType> {
         executor.context().try(|conn|
@@ -146,7 +150,7 @@ graphql_object!(Game: Context as "Game" |&self| {
 });
 
 graphql_object!(AiGameAssocs: Context as "AiGameConnection" |&self| {
-    field id() -> ID { id("aigameassoc", self.id) }
+    field id() -> ID { IDKind::AiGameAssoc.enc(self.id) }
     field score() -> Option<i64> { self.score.map(|v| v as _) }
     field rank() -> Option<i64> { self.rank.map(|v| v as _) }
 
