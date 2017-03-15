@@ -1,9 +1,20 @@
 #![allow(unknown_lints, redundant_closure_call)]
-use juniper::FieldResult;
+use juniper::{FieldResult, ID};
+use diesel::SaveChangesDsl;
 
 use super::Context;
-
 use models::*;
+
+
+macro_rules! update_object {
+    ($obj:ident, $changes:ident, [ $( $key:ident ),* ]) => {
+        $(if let Some(val) = $changes.$key {
+            println!("updated {}", stringify!($key));
+            $obj.$key = val;
+        })*
+    }
+}
+
 
 pub struct Mutation;
 graphql_object!(Mutation: Context as "Mutation" |&self| {
@@ -27,6 +38,18 @@ graphql_object!(Mutation: Context as "Mutation" |&self| {
             user: None
         })
     }
+
+    field edit_user(&executor, input: EditUserInput) -> FieldResult<EditUserOutput> {
+        let mut user = executor.context().access_user(&input.user_id)?;
+        update_object!(user, input, [
+            email, firstname, lastname, name_public
+        ]);
+        executor.context().try(|conn| user.save_changes::<User>(conn))?;
+        Ok(EditUserOutput {
+            client_mutation_id: input.client_mutation_id,
+            user: user
+        })
+    }
 });
 
 #[derive(Debug)]
@@ -47,5 +70,28 @@ graphql_input_object!(
         client_mutation_id: String,
         username: String,
         password: String,
+    }
+);
+
+
+#[derive(Debug)]
+pub struct EditUserOutput {
+    client_mutation_id: String,
+    user: User
+}
+graphql_object!(EditUserOutput: Context as "EditUserOutput" |&self| {
+    field clientMutationId() -> &String { &self.client_mutation_id }
+    field user() -> &User { &self.user }
+});
+
+
+graphql_input_object!(
+    struct EditUserInput {
+        client_mutation_id: String,
+        user_id: ID,
+        email: Option<String>,
+        lastname: Option<Option<String>>,
+        firstname: Option<Option<String>>,
+        name_public: Option<bool>
     }
 );

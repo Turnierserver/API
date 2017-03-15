@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use juniper;
-use juniper::FieldResult;
+use juniper::{FieldResult, ID};
 use rocket::http::Cookies;
 use uuid::Uuid;
 use std::fmt::Debug;
@@ -12,6 +12,7 @@ use schema::users;
 use schema::users::dsl::*;
 use schema::tokens::dsl::*;
 use establish_connection;
+use super::IDKind;
 
 pub struct Context {
     pub user: Option<User>,
@@ -50,6 +51,18 @@ impl Context {
         self.user.as_ref()
             .map(|u| u.admin || u.id == ai.user_id)
             .unwrap_or(false)
+    }
+
+    pub fn access_user(&self, id: &ID) -> Result<User, String> {
+        let user = users
+            .find(IDKind::User.dec(id)?)
+            .first(&self.conn)
+            .map_err(|_| "database failure".to_owned())?;
+        if self.can_access_user(&user) {
+            Ok(user)
+        } else {
+            Err("insufficient permissions".into())
+        }
     }
 
     pub fn try<T, F, E>(&self, func: F) -> FieldResult<T>
