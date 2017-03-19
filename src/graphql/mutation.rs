@@ -2,9 +2,8 @@
 use juniper::{FieldResult, ID};
 use diesel::SaveChangesDsl;
 
-use super::Context;
+use super::*;
 use models::*;
-
 
 macro_rules! update_object {
     ($obj:ident, $changes:ident, [ $( $key:ident ),* ]) => {
@@ -73,17 +72,11 @@ graphql_input_object!(
     }
 );
 
-
-#[derive(Debug)]
-pub struct EditUserOutput {
-    client_mutation_id: String,
-    user: User
-}
-graphql_object!(EditUserOutput: Context as "EditUserOutput" |&self| {
-    field clientMutationId() -> &String { &self.client_mutation_id }
-    field user() -> &User { &self.user }
-});
-
+mutation_output!(
+    struct EditUserOutput {
+        user: User
+    }
+);
 
 graphql_input_object!(
     struct EditUserInput {

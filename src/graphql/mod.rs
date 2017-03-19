@@ -1,3 +1,4 @@
+#[macro_use] mod relay_macros;
 pub mod rocket_glue;
 mod context;
 pub use self::context::Context;
