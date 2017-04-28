@@ -12,7 +12,6 @@ extern crate bcrypt;
 
 pub mod schema;
 pub mod models;
-pub mod insert;
 pub mod graphql;
 pub use graphql::rocket_glue;
 pub mod cors;

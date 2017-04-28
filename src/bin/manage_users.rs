@@ -4,7 +4,6 @@ extern crate rustyline;
 
 use self::turnierserver::*;
 use self::turnierserver::models::*;
-use self::turnierserver::insert;
 use self::diesel::prelude::*;
 
 fn yesno(choice: &str, default: bool) -> bool {

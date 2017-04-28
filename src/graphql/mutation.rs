@@ -8,7 +8,6 @@ use models::*;
 macro_rules! update_object {
     ($obj:ident, $changes:ident, [ $( $key:ident ),* ]) => {
         $(if let Some(val) = $changes.$key {
-            println!("updated {}", stringify!($key));
             $obj.$key = val;
         })*
     }
@@ -36,6 +35,10 @@ graphql_object!(Mutation: Context as "Mutation" |&self| {
             token: None,
             user: None
         })
+    }
+
+    field register(&executor, input: RegisterInput) -> FieldResult<EditUserOutput> {
+        unimplemented!()
     }
 
     field edit_user(&executor, input: EditUserInput) -> FieldResult<EditUserOutput> {
@@ -66,6 +69,14 @@ graphql_object!(AuthOutput: Context as "AuthOutput" |&self| {
 
 graphql_input_object!(
     struct AuthCredentials {
+        client_mutation_id: String,
+        username: String,
+        password: String,
+    }
+);
+
+graphql_input_object!(
+    struct RegisterInput {
         client_mutation_id: String,
         username: String,
         password: String,

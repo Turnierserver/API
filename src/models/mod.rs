@@ -6,6 +6,7 @@ use bcrypt;
 
 mod user;
 pub use self::user::User;
+pub mod insert;
 
 #[derive(Debug, Queryable, Identifiable, Associations, AsChangeset)]
 #[belongs_to(User, GameType)]

@@ -1,4 +1,4 @@
-use super::schema::*;
+use super::super::schema::*;
 
 #[derive(Insertable)]
 #[table_name="users"]
