@@ -34,7 +34,8 @@ impl IDKind {
     }
 
     pub fn dec(&self, id: &ID) -> Result<i32, String> {
-        let s = base64::decode(&*id).map_err(|_| "invalid base64".to_owned())?;
+        let s = &*id;
+        let s = base64::decode(s.as_bytes()).map_err(|_| "invalid base64".to_owned())?;
         let s = str::from_utf8(&s).map_err(|_| "invalid utf8 str".to_owned())?;
         let (kind, data) = s.split_at(self.prefix().len() + 1);
         if &kind[0..kind.len() - 1] != self.prefix() {
