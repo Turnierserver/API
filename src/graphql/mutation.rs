@@ -1,9 +1,10 @@
 #![allow(unknown_lints, redundant_closure_call)]
 use juniper::{FieldResult, ID};
-use diesel::SaveChangesDsl;
+use diesel::{self, SaveChangesDsl};
 
 use super::*;
 use models::*;
+use self::diesel::prelude::*;
 
 macro_rules! update_object {
     ($obj:ident, $changes:ident, [ $( $key:ident ),* ]) => {
@@ -38,7 +39,22 @@ graphql_object!(Mutation: Context as "Mutation" |&self| {
     }
 
     field register(&executor, input: RegisterInput) -> FieldResult<EditUserOutput> {
-        unimplemented!()
+        use schema::users;
+        let new_user = insert::User {
+            username: &input.username,
+            email: &input.email,
+            admin: false
+        };
+        let mut user = executor.context().try(|conn| {
+            diesel::insert(&new_user).into(users::table)
+                .get_result::<User>(conn)
+        })?;
+        let user = user.set_pass(&input.password, &executor.context().conn)
+            .map_err(|_| "database failure")?;
+        Ok(EditUserOutput {
+            client_mutation_id: input.client_mutation_id,
+            user: user
+        })
     }
 
     field edit_user(&executor, input: EditUserInput) -> FieldResult<EditUserOutput> {
@@ -80,6 +96,7 @@ graphql_input_object!(
         client_mutation_id: String,
         username: String,
         password: String,
+        email: String,
     }
 );
 
