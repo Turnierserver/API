@@ -1,10 +1,12 @@
 extern crate turnierserver;
 extern crate diesel;
 extern crate rustyline;
+extern crate chrono;
 
 use self::turnierserver::*;
 use self::turnierserver::models::*;
 use self::diesel::prelude::*;
+use chrono::offset::utc::UTC;
 
 fn yesno(choice: &str, default: bool) -> bool {
     let mut rl = rustyline::Editor::<()>::new();
@@ -25,7 +27,7 @@ fn yesno(choice: &str, default: bool) -> bool {
                     _ => println!("Invalid choice"),
                 }
             },
-            Err(_) => println!("TODO: abort"),
+            Err(_) => ::std::process::exit(1),
         }
     }
 }
@@ -42,7 +44,7 @@ fn text(desc: &str, default: String) -> String {
                 }
                 return line;
             },
-            Err(_) => println!("TODO: abort"),
+            Err(_) => ::std::process::exit(1),
         }
     }
 }
@@ -50,6 +52,9 @@ fn text(desc: &str, default: String) -> String {
 fn main() {
     use turnierserver::schema::users;
     use turnierserver::schema::users::dsl::*;
+    use turnierserver::schema::ais;
+    use turnierserver::schema::gametypes::dsl::gametypes;
+    use turnierserver::schema::games;
 
     let connection = establish_connection();
     let results = users
@@ -90,5 +95,39 @@ fn main() {
         if yesno("set password?", false) {
             user.set_pass(&*text("=> password?", "foobar".into()), &connection).unwrap();
         }
+    }
+
+    while yesno("Insert Ai?", false) {
+        let user = users
+            .filter(username.eq(text("Username", "admin".into())))
+            .first::<User>(&connection)
+            .unwrap();
+        let gametype = gametypes
+            .first::<GameType>(&connection)
+            .unwrap();
+        let new_ai = insert::Ai {
+            user_id: user.id,
+            name: &*text("Name", "HAL-9000".into()),
+            description: None,
+            gametype_id: gametype.id,
+        };
+        let ai = diesel::insert(&new_ai).into(ais::table)
+            .get_result::<Ai>(&connection)
+            .unwrap();
+        println!("{:#?}", ai);
+    }
+
+    while yesno("Insert Game?", false) {
+        let gametype = gametypes
+            .first::<GameType>(&connection)
+            .unwrap();
+        let new_game = insert::Game {
+            gametype_id: gametype.id,
+            timestamp: UTC::now(),
+        };
+        let game = diesel::insert(&new_game).into(games::table)
+            .get_result::<Game>(&connection)
+            .unwrap();
+        println!("{:#?}", game);
     }
 }

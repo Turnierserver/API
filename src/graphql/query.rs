@@ -141,6 +141,10 @@ graphql_object!(Game: Context as "Game" |&self| {
         )
     }
 
+    field timestamp(&executor) -> String {
+        self.timestamp.to_string()
+    }
+
     field ais(&executor) -> FieldResult<Vec<AiGameAssocs>> {
         executor.context().try(|conn|
             ai_game_assocs.filter(schema::ai_game_assocs::columns::game_id.eq(self.id))
